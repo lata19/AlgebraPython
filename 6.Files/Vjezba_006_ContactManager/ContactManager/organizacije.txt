@@ -1,0 +1,5 @@
+Naziv: Algebra	Adresa: Gradiscanska	OIB: 2186941
+1. Ime i prezime zaposlenika: Alen Carin	OIB zaposlenika: 12896210	Radno mjesto zaposlenika: Predavac
+2. Ime i prezime zaposlenika: Petar Peric	OIB zaposlenika: 12097	Radno mjesto zaposlenika: Admin
+1. Ime i prezime korisnika: Nikola Latincic	Adresa korisnika: Aleja pomoraca	OIB korisnika: 075675407	E-adresa korisnika: nikola@mail.com
+2. Ime i prezime korisnika: Luka Lukic	Adresa korisnika: Ilica	OIB korisnika: 7896587	E-adresa korisnika: luka@hotmail.com
