@@ -43,5 +43,3 @@ try:
         file_writer.write(content)
 except Exception as e:
     print(f"Dogodila se pogreska {e}")
-
-
