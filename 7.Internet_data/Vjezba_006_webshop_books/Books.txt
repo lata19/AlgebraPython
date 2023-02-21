@@ -1,0 +1,10 @@
+Cheapest book is:
+8: Price: 10.69, Heading: Tastes Like Fear (DI ..., Star rating: One star
+Most expensive book is:
+15: Price: 59.48, Heading: Boar Island (Anna Pigeon ..., Star rating: Three starsCheapest book is:
+9: Price: 12.29, Heading: The Girl You Lost, Star rating: Five
+Most expensive book is:
+8: Price: 57.70, Heading: The No. 1 Ladies' ..., Star rating: FourCheapest book is:
+8: Price: 10.69, Heading: Tastes Like Fear (DI ..., Star rating: One
+Most expensive book is:
+15: Price: 59.48, Heading: Boar Island (Anna Pigeon ..., Star rating: Three
