@@ -1,21 +1,124 @@
+import datetime as dt
+import locale
 import os
-from datetime import datetime
 
-accounts = {
-    "BA-2023-2-00001": {
-        "Naziv tvrtke": "Algebra",
-        "Adresa": "Maksimirska 158",
-        "Poštanski broj": "10000",
-        "Grad": "Zagreb",
-        "OIB": "05306114531",
-        "Odgovorna osoba": "Nikola Latincic",
-        "Valuta": "EUR",
-        "Balance": 125500.0,
-    }
-}
-account_traffic = {}
-currency = ""
-def otvaranje_racuna():
+locale.setlocale(locale.LC_TIME, 'hr_HR')
+accounts = {}
+
+# Definiranje klase Račun
+class Account:
+    def __init__(self, account_number, company_name, adress, zip_code, city, pin, authorized_person, currency, balance, transactions=[]):
+        self.account_number = account_number
+        self.company_name = company_name
+        self.adress = adress
+        self.zip_code = zip_code
+        self.city = city
+        self.pin = pin
+        self.authorized_person = authorized_person
+        self.currency = currency
+        self.balance = balance
+        self.transactions = transactions
+
+    def name_change(self, new_company_name):
+        """
+        Metoda koja mijenja naziv kompanije
+        :param new_company_name: Novi naziv kompanije
+        :return: Novi naziv komapnije
+        """
+        self.company_name = new_company_name
+        return f"Novi naziv kompanije je {self.company_name}"
+    
+    def adress_change(self, new_adress):
+        self.adress = new_adress
+    
+    def zip_code_change(self, new_zip_code):
+        self.zip_code = new_zip_code
+    
+    def city_change(self, new_city):
+        self.city = new_city
+
+    def authorized_person_change(self, new_authorized_person):
+        self.authorized_person = new_authorized_person
+    
+    def currency_change(self, new_currency):
+        self.currency = new_currency
+        conversion_rate = float(input("Upišite tečaj konverzije na novu valutu: "))
+        self.balance /= conversion_rate
+
+    def balance_inquiry(self):
+        start_screen()
+        print(f"Broj računa: {self.account_number}")
+        print(f"Datum i vrijeme: {date_check().strftime('%A, %d.%m.%Y. %H:%M:%S').capitalize()}\n")
+        print(f"Stanje računa: {self.balance} {self.currency}")
+        input("Pritisnite bilo koju tipku za nastavak: ")
+
+    def deposit(self):
+        os.system("cls")
+        print("*" * 100)
+        print("{:^100}".format("PyBank Algebra\n"))
+        print("{:^100}".format("POLOG NOVCA NA RAČUN\n"))
+        print(f"Broj računa: {self.account_number}")
+        print(f"Datum i vrijeme: {date_check().strftime('%A, %d.%m.%Y. %H:%M:%S').capitalize()}\n")
+        print(f"Stanje računa: {self.balance} {currency}")
+        payment = float(input("Upišite iznos koji želite uplatiti na svoj račun: "))
+        self.balance += payment
+        date = f"{date_check().strftime('%d.%m.%Y. %H:%M:%S')}"
+        transaction = Transaction("Uplata", date, payment)
+        self.transactions.append(transaction)
+        start_screen()
+        print(f"Broj računa: {self.account_number}")
+        print(f"Datum i vrijeme: {date_check().strftime('%A, %d.%m.%Y. %H:%M:%S').capitalize()}\n")
+        print(f"Stanje Vašeg računa nakon provedene transakcije: {self.balance} {self.currency}")
+        input("Pritisnite bilo koju tipku za nastavak: ")
+
+    def withdrawal(self):
+        os.system("cls")
+        print("*" * 100)
+        print("{:^100}".format("PyBank Algebra\n"))
+        print("{:^100}".format("PODIZANJE NOVCA s RAČUN\n"))
+        print(f"Broj računa: {self.account_number}")
+        print(f"Datum i vrijeme: {date_check().strftime('%A, %d.%m.%Y. %H:%M:%S').capitalize()}\n")
+        print(f"Stanje računa: {self.balance} {self.currency}")
+        while True:
+            payment = float(input("Upišite iznos koji želite podići sa svog računa: "))
+            if payment > self.balance:
+                print("Nedovoljan iznos sredstava na računu. Molimo Vas pokušajte ponovo.")
+            else:
+                break
+        self.balance -= payment
+        date = f"{date_check().strftime('%d.%m.%Y. %H:%M:%S')}"
+        transaction = Transaction("Isplata", date, payment)
+        self.transactions.append(transaction)
+        start_screen()
+        print(f"Broj računa: {self.account_number}")
+        print(f"Datum i vrijeme: {date_check().strftime('%A, %d.%m.%Y. %H:%M:%S').capitalize()}\n")
+        print(f"Stanje Vašeg računa nakon provedene transakcije: {self.balance} {self.currency}")
+        input("Pritisnite bilo koju tipku za nastavak: ")
+    
+    def ispis(self):
+        print(f"""
+        Transakcije: {self.transactions}
+        """)
+
+class Transaction(Account):
+    def __init__(self, transaction_type, date, payment):
+        self.transaction_type  = transaction_type
+        self.date = date
+        self.payment = payment
+
+    def transactions_print(self):
+        start_screen()
+        print(f"Broj računa: {self.account_number}")
+        print(f"Datum i vrijeme: {date_check().strftime('%A, %d.%m.%Y. %H:%M:%S').capitalize()}\n")
+        print("Promet po računu:")
+        for transaction in self.transactions:
+            print(f"{transaction.transaction_type} - {transaction.date}: {transaction.payment} {self.currency}")
+        input("Pritisnite bilo koju tipku za nastavak: ")
+
+    def add_transaction(self):
+        return f"{self.transaction_type} - {self.date}: {self.payment}"
+
+def account_open():
     """Funkcija koja otvara računa u banci"""
 
     global currency
@@ -25,11 +128,11 @@ def otvaranje_racuna():
     adress = input("{:<55}".format("Upišite adresu i kućni broj sjedišta vaše tvrtke: "))
     zip_code = input("{:<55}".format("Upišite poštanski broj sjedišta Vaše tvrtke: "))
     city = input("{:<55}".format("Upišite grad u kojem je sjedište Vaše tvrtke: "))
-    oib = input("{:<55}".format("Upišite OIB Vaše tvrtke: "))
     ap_name = input("{:<55}".format("Upišite ime i prezime ovlaštene osobe: ")) # ap = authorized person
-    while len(oib) != 11:
+    pin = input("{:<55}".format("Upišite OIB Vaše tvrtke: "))
+    while len(pin) != 11 or pin.isnumeric() == False:
         print("Neispravan unos! Molimo Vas probajte ponovo.")
-        oib = input("Upišite OIB Vaše tvrtke: ")
+        pin = input("Upišite OIB Vaše tvrtke: ")
     currency = ""
     while currency != "EUR" and currency != "HRK":
         currency = input("Odaberite valutu računa (EUR ili HRK): ").upper()
@@ -37,129 +140,21 @@ def otvaranje_racuna():
     input("Pritisnite bilo koju tipku za nastavak: ")
 
     i = len(accounts) + 1
-    day, month, year, hour, minute, second = date_check()
-    year = datetime.now().year
-    month = datetime.now().month
-    new_account = f"BA-{year}-{month}-{str(i).zfill(5)}"
-
-    accounts[new_account] = {
-    "Naziv tvrtke": company_name,
-    "Adresa": adress,
-    "Poštanski broj": zip_code,
-    "Grad": city,
-    "OIB": oib,
-    "Odgovorna osoba": ap_name,
-    "Valuta": currency,
-    "Balance": 0.0,
-    }
-    account_traffic[new_account] = {}
+    account_number = f"BA-{date_check().strftime('%Y-%m')}-{str(i).zfill(5)}"
+    balance = 0
+    
+    account = Account(account_number, company_name, adress, zip_code, city, pin, ap_name, currency, balance)
+    accounts[account_number] = account
 
     start_screen()
     print("Stanje računa\n")
-    print(f"Broj računa: {new_account}")
-    print("Trenutno stanje računa: {} {}".format(accounts[new_account]["Balance"], currency))
+    print(f"Broj računa: {account.account_number}")
+    print(f"Trenutno stanje računa: {account.balance} {account.currency}")
     payment = float(input("Upišite iznos koji želite položiti na račun: "))
-    accounts[new_account]["Balance"] += payment
-    day, month, year, hour, minute, second = date_check()
-    date = f"{day}.{month}.{year}., {hour}:{minute}:{second}"
-    account_traffic[new_account] = {
-        f"Uplata: {date}": payment
-    }
-
-def prikaz_stanja_racuna():
-    """Funkcija koja ispisuje stanje računa"""
-
-    start_screen()
-    print("{:^100}".format("PRIKAZ STANJA RAČUNA\n"))
-
-    account_number = user_check()
-    balance = accounts[account_number]["Balance"]
-
-    
-    start_screen()
-    print(f"Broj računa: {account_number}")
-    print(f"Datum i vrijeme: {datetime.now()}\n")
-    print(f"Stanje računa: {balance} {currency}")
-    input("Pritisnite bilo koju tipku za nastavak: ")
-
-def prikaz_prometa_po_racunu():
-    """Funkcija koja na ekranu ispisuje promet po računu"""
-
-    start_screen()
-    print("{:^100}".format("PRIKAZ PROMETA PO RAČUNU\n"))
-    
-    account_number = user_check()
-
-    start_screen()
-    print(f"Broj računa: {account_number}")
-    print(f"Datum i vrijeme: {datetime.now()}\n")
-    print("Promet po računu:")
-    for v in account_traffic.values():
-        print(v)
-    input("Pritisnite bilo koju tipku za nastavak: ")
-
-def polog_novca():
-    """Funkcija za polog novca na račun"""
-    start_screen()
-    print("{:^100}".format("POLOG NOVCA NA RAČUN\n"))
-    account_number = user_check()
-    for k, v in accounts.items():
-        if k == account_number:
-            os.system("cls")
-            print("*" * 100)
-            print("{:^100}".format("PyBank Algebra\n"))
-            print("{:^100}".format("POLOG NOVCA NA RAČUN\n"))
-            print(f"Broj računa: {k}")
-            print(f"Datum i vrijeme: {datetime.now()}\n")
-            print(f"Stanje računa: {v['Balance']} {currency}")
-            payment = float(input("Upišite iznos koji želite uplatiti na svoj račun: "))
-            v["Balance"] += payment
-            day, month, year, hour, minute, second = date_check()
-            date = f"{day}.{month}.{year}., {hour}:{minute}:{second}"
-            account_traffic[account_number][f"Uplata: {date}"] = f"+{payment}"
-            break
-        
-    start_screen()
-    print(f"Broj računa: {k}")
-    print(f"Datum i vrijeme: {datetime.now()}\n")
-    print("Stanje Vašeg računa nakon provedene transakcije: {} {}".format(v["Balance"], currency))
-    input("Pritisnite bilo koju tipku za nastavak: ")
-
-# TODO završiti ostatak
-def podizanje_novca():
-    """Funkcija za podizanje novca s računa"""
-    start_screen()
-    print("{:^100}".format("PODIZANJE NOVCA S RAČUN\n"))
-    account_number = user_check()
-
-    for k, v in accounts.items():
-            if k == account_number:
-                balance = v["Balance"]
-                os.system("cls")
-                print("*" * 100)
-                print("{:^100}".format("PyBank Algebra\n"))
-                print("{:^100}".format("PODIZANJE NOVCA s RAČUN\n"))
-                print(f"Broj računa: {k}")
-                print(f"Datum i vrijeme: {datetime.now()}\n")
-                print(f"Stanje računa: {balance} {currency}")
-                while True:
-                    payment = float(input("Upišite iznos koji želite podići sa svog računa: "))
-                    if payment > v["Balance"]:
-                        print("Nedovoljan iznos sredstava na računu. Molimo Vas pokušajte ponovo.")
-                    else:
-                        break
-                v["Balance"] -= payment
-                day, month, year, hour, minute, second = date_check()
-                date = f"{day}.{month}.{year}., {hour}:{minute}:{second}"
-                account_traffic[account_number][f"Isplata: {date}"] = f"-{payment}"
-                break
-            
-    start_screen()
-    print(f"Broj računa: {k}")
-    print(f"Datum i vrijeme: {datetime.now()}\n")
-    print("Stanje Vašeg računa nakon provedene transakcije: {} {}".format(v["Balance"], currency))
-    input("Pritisnite bilo koju tipku za nastavak: ")
-
+    account.balance += payment
+    date = f"{date_check().strftime('%d.%m.%Y. %H:%M:%S')}"
+    transaction = Transaction("Uplata", date, payment)
+    account.transactions.append(transaction)
 
 # izbornik
 def main_menu():
@@ -179,15 +174,27 @@ def main_menu():
 
         action = int(input("Vaš izbor: "))
         if action == 1:
-            otvaranje_racuna()
+            account_open()
         elif action == 2:
-            prikaz_stanja_racuna()
+            start_screen()
+            print("{:^100}".format("PRIKAZ STANJA RAČUNA\n"))
+            account_number = user_check()
+            accounts[account_number].balance_inquiry()
         elif action == 3:
-            prikaz_prometa_po_racunu()
+            start_screen()
+            print("{:^100}".format("PRIKAZ PROMETA PO RAČUNU\n"))
+            account_number = user_check()
+            Transaction.transactions_print(accounts[account_number])
         elif action == 4:
-            polog_novca()
+            start_screen()
+            print("{:^100}".format("POLOG NOVCA NA RAČUN\n"))
+            account_number = user_check()
+            accounts[account_number].deposit()
         elif action == 5:
-            podizanje_novca()
+            start_screen()
+            print("{:^100}".format("PODIZANJE NOVCA S RAČUN\n"))
+            account_number = user_check()
+            accounts[account_number].withdrawal()
         elif action == 0:
             start_screen()
             print("{:^100}".format("GLAVNI IZBORNIK\n"))
@@ -211,8 +218,8 @@ def user_check():
             print("Pogrešan unos. Pokušajte ponovo.")
     
     while True:
-        oib = input("Upišite OIB Vaše tvrtke: ")
-        if oib in account_data["OIB"]:
+        pin = input("Upišite OIB Vaše tvrtke: ")
+        if pin in account_data.pin:
             break
         else:
             print("Pogrešan unos. Pokušajte ponovo.")
@@ -220,13 +227,9 @@ def user_check():
     return account_number
 
 def date_check():
-    day = datetime.now().day
-    month = datetime.now().month
-    year = datetime.now().year
-    hour = datetime.now().hour
-    minute = datetime.now().minute
-    second = datetime.now().second
-
-    return day, month, year, hour, minute, second
+    return dt.datetime.now()
 
 main_menu()
+
+for a in accounts.values():
+    a.ispis()
