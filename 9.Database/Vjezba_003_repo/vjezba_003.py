@@ -50,6 +50,14 @@ def update_employee(db_connection, djelatnik):
     :param djelatnik: Tuple s podacima o djelatniku
     :return: None
     """
+    sql_query = """UPDATE Employees
+                    SET name = ?,
+                        email = ?
+                    WHERE id = ?
+                    """
+    cursor = db_connection.cursor()
+    cursor.execute(sql_query, djelatnik)
+    db_connection.comit()
 
 def delete_employee(db_connection, id):
     """
@@ -58,6 +66,11 @@ def delete_employee(db_connection, id):
     :param id: id retka djelatnika
     :return: None
     """
+    sql_query = """DELETE FROM Employees
+                    WHERE id = ?"""
+    cursor = db_connection.cursor()
+    cursor.execute(sql_query, id)
+    db_connection.comit()
 
 def delete_all_employees(db_connection):
     """
@@ -65,6 +78,10 @@ def delete_all_employees(db_connection):
     :param db_connection: SQLite db connection objekt
     :return: None
     """
+    sql_query = """DELETE FROM Employees"""
+    cursor = db_connection.cursor()
+    cursor.execute(sql_query)
+    db_connection.comit()
 
 def select_all_employees(db_connection):
     """
@@ -72,6 +89,10 @@ def select_all_employees(db_connection):
     :param db_connection: SQLite db connection objekt
     :return: None
     """
+    sql_query = """SELECT * FROM Employees"""
+    cursor = db_connection.cursor()
+    cursor.execute(sql_query)
+    records = cursor.fetchall()
 
 def select_employees_by_id(db_connection, id):
     """
@@ -80,3 +101,9 @@ def select_employees_by_id(db_connection, id):
     :param id: id retka djelatnika
     :return: print redak
     """
+    sql_query = """SELECT * FROM Employees
+                    WHERE id = ?"""
+    cursor = db_connection.cursor()
+    cursor.execute(sql_query, id)
+    records = cursor.fetchall()
+    return records

@@ -1,6 +1,6 @@
 import sqlite3
 
-database_name = "9.Database/Vjezba_002/CompanyDB.db"
+database_name = "9.Database/Vjezba_002_CRUD/CompanyDB.db"
 
 select_query = "SELECT * FROM Employees WHERE id=?"
 
@@ -8,7 +8,7 @@ try:
     sqliteConnection = sqlite3.connect(database_name)
     cursor = sqliteConnection.cursor()
     print("Baza je uspješno kreirana te je aplikacija spojena na SQLite!")
-    cursor.execute(select_query, (3,))
+    cursor.execute(select_query, (2,))
     records = cursor.fetchall()
 
     for record in records:
