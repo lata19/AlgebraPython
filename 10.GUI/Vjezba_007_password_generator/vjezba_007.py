@@ -20,7 +20,7 @@ def set_duzina_lozinke(value):
     duzina_lozinke.set(int(value))
 
 def set_prikaz_lozinke():
-    if prikazi_lozinku == "prikazi":
+    if prikazi_lozinku.get() == "prikazi":
         ent_lozinka.config(show="")
     else:
         ent_lozinka.config(show="*")
@@ -28,18 +28,22 @@ def set_prikaz_lozinke():
 def generiraj_lozinku():
     broj_znakova = duzina_lozinke.get()
     lozinka = ""
-    lista_znakova = []
+    choices = []
+
     for znak in range(broj_znakova):
         if slova_var.get():
-            kompleksnost = random.choice([(65, 90), (97, 122)])
+            choices += [(65, 90), (97, 122)]
         if brojevi_var.get():
-            kompleksnost = random.choice([(48, 57)])
+            choices += [(48, 57)]
         if spec_znakovi_var.get():
-            kompleksnost = random.choice([(33, 47), (58, 64), (91, 96)])
-        else:
-            kompleksnost = random.choice([(33, 122)])
+            choices += [(33, 47), (58, 64), (91, 96)]
+        
+        if not choices:
+            choices += [(33, 122)]
 
-        random_broj = random.randint(*kompleksnost)
+        raspon = random.choice(choices)
+        pocetak, kraj = raspon
+        random_broj = random.randint(pocetak, kraj)
         znak = chr(random_broj)
         lozinka += znak
     
