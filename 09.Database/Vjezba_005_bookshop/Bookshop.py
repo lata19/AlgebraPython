@@ -1,6 +1,5 @@
 import sqlalchemy as db
-from sqlalchemy.orm import backref, relationship, sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import backref, relationship, sessionmaker, declarative_base
 
 Base = declarative_base()
 

@@ -1,6 +1,5 @@
 import sqlalchemy as db
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 
 
 Base = declarative_base()
@@ -39,8 +38,14 @@ def get_all_family_members(session):
 
 def get_user_by_pin(session, pin):
     """Dohvaća člana obitelji iz Baze podataka po pin broju"""
-    user = session.query(Family).filter(Family.pin == pin)
-    if user:
+    user = session.query(Family).filter(Family.pin == pin).one_or_none()
+    return user.first_name, user.last_name, user.active
+
+
+def pin_access(session, pin):
+    """Provjerava je li pin broj postoji u bazi podataka obitelji"""
+    user = session.query(Family).filter(Family.pin == pin).one_or_none()
+    if user and user.active:
         return True
     else:
         return False
@@ -52,8 +57,9 @@ def get_user(session, first_name, last_name, pin):
         session.query(Family)
         .filter(db.and_(Family.first_name == first_name, Family.last_name == last_name))
         .filter(Family.pin == pin)
+        .one_or_none()
     )
-    if user and user.active:
+    if user:
         return True
     else:
         return False
@@ -84,11 +90,33 @@ def delete_user(session, id):
         return False
 
 
-def create_engine(path):
-    db_engine = db.create_engine(f"sqlite:///{path}")
+def create_engine():
+    db_engine = db.create_engine(
+        "sqlite:///00.Parcijalni_ispiti/02/latincic_nikola_SmartKey/SmartKey/Database.db"
+    )
     Base.metadata.create_all(db_engine)
 
     Session = sessionmaker()
     Session.configure(bind=db_engine)
     session = Session()
+    fill_db(session)
     return session
+
+
+def fill_db(session):
+    family = [
+        ["Admin", "Admin", "9182", True],
+        ["Ante", "Antic", "8907", False],
+        ["Iva", "Ivic", "4325", True],
+        ["Petra", "Peric", "3425", True],
+        ["Ivan", "Horvat", "4256", True],
+    ]
+
+    for person in family:
+        add_person(
+            session,
+            first_name=person[0],
+            last_name=person[1],
+            pin=person[2],
+            active=person[3],
+        )
