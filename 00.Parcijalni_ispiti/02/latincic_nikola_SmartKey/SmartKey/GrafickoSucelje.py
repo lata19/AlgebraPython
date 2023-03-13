@@ -9,6 +9,8 @@ class SmartKey(Tk):
         super().__init__()
         self.title("Smart Key")
 
+        self.active_var = BooleanVar()
+
         # FRAME 1
         self.frm_buttons = Frame(self)
         self.frm_buttons.grid(columnspan=10, rowspan=3)
@@ -31,6 +33,7 @@ class SmartKey(Tk):
 
         self.lbl_message2 = Label(self.frm_pin, text="Uspjesna prijava")
         self.lbl_message3 = Label(self.frm_pin, text="Pogresan PIN.\nPozvonite!")
+
         # FRAME 3
         self.frm_admin = Frame(self)
 
@@ -161,6 +164,127 @@ class SmartKey(Tk):
             self.frm_admin, text="Upravljanje dodijeljenim ključevima"
         )
         self.lbl_admin.grid(column=4, columnspan=2, row=0, padx=10, pady=10)
+
+        self.lbl_list_of_users = Label(self.frm_admin, text="Popis aktivnih korisnika")
+        self.lbl_list_of_users.grid(column=0, columnspan=3, row=1, pady=10)
+        session = create_engine()
+        family = get_all_family_members(session)
+
+        # TODO
+        # napraviti da se klikom na ime clana obitelji upisu njegovi podaci u entries
+
+        i = 2
+        for user in family:
+            self.btn_users = Button(
+                self.frm_admin,
+                text=f"{user.first_name} {user.last_name}",
+                width=12,
+                command=lambda: self.fill_fields(
+                    user.first_name, user.last_name, user.pin, user.active
+                ),
+            )
+            self.btn_users.grid(column=0, columnspan=3, row=i, pady=5)
+            i += 1
+        # all_members = []
+        # member = []
+        # i = 2
+        # for user in family:
+        #     first_name = user.first_name
+        #     last_name = user.last_name
+        #     pin = user.pin
+        #     active = user.active
+
+        #     member[0] = first_name
+        #     member[1] = last_name
+        #     member[2] = pin
+        #     member[3] = active
+        #     all_members.append(member)
+
+        # for member in all_members:
+        #     self.btn_users = Button(
+        #         self.frm_admin,
+        #         text=f"{member[0]} {member[1]}",
+        #         width=12,
+        #         command=lambda: self.fill_fields(
+        #             member[0], member[1], member[2], member[3]
+        #         ),
+        #     )
+        #     self.btn_users.grid(column=0, columnspan=3, row=i, pady=5)
+        #     i += 1
+
+        self.lbl_first_name = Label(self.frm_admin, text="Ime")
+        self.lbl_first_name.grid(column=4, row=2)
+        self.first_name_entry = Entry(self.frm_admin)
+        self.first_name_entry.grid(column=5, columnspan=2, row=2)
+
+        self.lbl_last_name = Label(self.frm_admin, text="Prezime")
+        self.lbl_last_name.grid(column=4, row=3)
+        self.last_name_entry = Entry(self.frm_admin)
+        self.last_name_entry.grid(column=5, columnspan=2, row=3)
+
+        self.lbl_pin = Label(self.frm_admin, text="PIN (4 broja)")
+        self.lbl_pin.grid(column=4, row=4)
+        self.pin_edit_entry = Entry(self.frm_admin)
+        self.pin_edit_entry.grid(column=5, columnspan=2, row=4)
+
+        self.lbl_active = Label(self.frm_admin, text="Aktivan")
+        self.lbl_active.grid(column=4, row=5)
+        self.active_cb = Checkbutton(self.frm_admin, variable=self.active_var)
+        self.active_cb.grid(column=5, row=5)
+
+        self.btn_save = Button(
+            self.frm_admin,
+            text="Spremi",
+            command=lambda: self.save(
+                self.first_name_entry.get(),
+                self.last_name_entry.get(),
+                self.pin_edit_entry.get(),
+                self.active_var.get(),
+            ),
+        )
+        self.btn_save.grid(column=4, row=6, padx=10)
+        self.btn_cancel = Button(self.frm_admin, text="Odustani", command=self.cancel)
+        self.btn_cancel.grid(column=5, row=6, padx=10)
+        self.btn_delete = Button(
+            self.frm_admin,
+            text="Izbrisi",
+            command=lambda: self.delete(
+                self.first_name_entry.get(),
+                self.last_name_entry.get(),
+                self.pin_edit_entry.get(),
+            ),
+        )
+        self.btn_delete.grid(column=6, row=6, padx=10)
+
+    def fill_fileds(self, first_name, last_name, pin, active):
+        self.first_name_entry.delete(0, END)
+        self.last_name_entry.delete(0, END)
+        self.pin_edit_entry.delete(0, END)
+        self.active_var.set(False)
+
+        self.first_name_entry.insert(0, first_name)
+        self.last_name_entry.insert(0, last_name)
+        self.pin_edit_entry.insert(0, pin)
+        self.active_var.set(active)
+        pass
+
+    def save(self, first_name, last_name, pin, active):
+        session = create_engine()
+        add_person(session, first_name, last_name, pin, active)
+        self.first_name_entry.delete(0, END)
+        self.last_name_entry.delete(0, END)
+        self.pin_edit_entry.delete(0, END)
+        self.active_var.set(False)
+
+    def cancel(self):
+        self.first_name_entry.delete(0, END)
+        self.last_name_entry.delete(0, END)
+        self.pin_edit_entry.delete(0, END)
+        self.active_var.set(False)
+
+    def delete(self, first_name, last_name, pin):
+        session = create_engine()
+        delete_user(session, first_name, last_name, pin)
 
 
 root = SmartKey()
